@@ -1,0 +1,11 @@
+---
+- hosts: localweb
+  user: $USER
+  become: True
+  gather_facts: True
+#  pre_tasks:
+#    - name: Gathering facts
+#      setup:
+  roles:
+      - tomcat
+
