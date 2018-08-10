@@ -1,6 +1,6 @@
 ---
 - hosts: localweb
-  user: $USER
+  user: raditsvc
   become: True
   gather_facts: True
 #  pre_tasks:

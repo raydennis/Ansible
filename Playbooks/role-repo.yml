@@ -1,0 +1,8 @@
+---
+- hosts: localweb
+  remote_user: raditsvc
+  become: True
+  become_method: sudo
+  gather_facts: True
+  roles:
+    - oci
