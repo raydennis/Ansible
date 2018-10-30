@@ -1,0 +1,172 @@
+---
+# Install Java
+# You need to install Java SE 7.0 or later before Apache Tomcat can run properly. Here, I will install OpenJDK Runtime Environment 1.8.0 using YUM:
+
+- name: Install dependencies
+  become: true
+  become_method: sudo
+  action: >
+    {{ ansible_pkg_mgr }} name={{ item }} state=present update_cache=yes
+  with_items:
+      - java-1.8.0-openjdk.x86_64
+
+# Step 3: Create a dedicated user for Apache Tomcat
+# For security purposes, you need to create a dedicated non-root user "tomcat" who belongs to the "tomcat" group:
+
+- name: Ensure group "tomcat" exists
+  group:
+    name: tomcat
+    state: present
+
+- name: Ensure tomcat directory exists
+  file:
+    path: /opt/tomcat
+    state: directory
+
+- name: Ensure tomcat user exists
+  user:
+    name: tomcat
+    groups: tomcat
+    state: present
+    system: no
+    createhome: yes
+    home: /opt/tomcat
+
+# Step 4: Download and install the latest Apache Tomcat
+# You can always find the latest stable version of Apache Tomcat 8 from its official download page, which is 8.0.53 as of writing.
+#
+# Under the "Binary Distributions" section and then the "Core" list, use the link pointing to the "tar.gz" archive to compose a get command:
+
+- name: Download Tomcat sources
+  get_url:
+    url: http://www-us.apache.org/dist/tomcat/tomcat-8/v8.0.53/bin/apache-tomcat-8.0.53.tar.gz
+    dest: /opt/tomcat
+
+#- name: Extract Tomcat sources
+#  unarchive:
+#    src: /opt/tomcat/apache-tomcat-8.0.53.tar.gz
+#    dest: /opt/tomcat/
+#    remote_src: yes
+#
+#- name: Move from folder to root
+#  copy:
+#    become: true
+#    become_method: sudo
+#    src: /opt/tomcat/apache-tomcat-8.0.53/
+#    dest: /opt/tomcat/
+#    remote_src: yes
+
+- name: extract
+  become: true
+  become_method: sudo
+  shell: tar -zxvf /opt/tomcat/apache-tomcat-8.0.53.tar.gz -C /opt/tomcat --strip-components=1
+
+
+# Step 5: Setup proper permissions
+# Before you can run Apache Tomcat, you need to setup proper permissions for several directories:
+#  cd /opt/tomcat
+#  sudo chgrp -R tomcat conf
+#  sudo chmod g+rwx conf
+#  sudo chmod g+r conf/*
+#  sudo chown -R tomcat logs/ temp/ webapps/ work/
+#
+#  sudo chgrp -R tomcat bin
+#  sudo chgrp -R tomcat lib
+#  sudo chmod g+rwx bin
+#  sudo chmod g+r bin/*
+
+
+- name: changing owner and permissions on conf
+  file:
+    path: /opt/tomcat/conf
+    owner: tomcat
+    group: tomcat
+    mode: "g+rwx"
+    recurse: yes
+
+- name: changing ownership on logs
+  file:
+    path: /opt/tomcat/logs
+    owner: tomcat
+    recurse: yes
+
+- name: changing ownership on temp
+  file:
+    path: /opt/tomcat/temp
+    owner: tomcat
+    recurse: yes
+
+- name: changing ownership on webapps
+  file:
+    path: /opt/tomcat/webapps
+    owner: tomcat
+    recurse: yes
+
+- name: changing ownership on work
+  file:
+    path: /opt/tomcat/work
+    owner: tomcat
+    recurse: yes
+
+- name: changing group and permissions on bin
+  file:
+    path: /opt/tomcat/bin
+    group: tomcat
+    mode: "g+rwx"
+    recurse: yes
+
+- name: changing group on lib
+  file:
+    path: /opt/tomcat/bin
+    group: tomcat
+    recurse: yes
+
+# Step 6: Setup a Systemd unit file for Apache Tomcat
+#As a matter of convenience, you should setup a Systemd unit file for Apache Tomcat:
+#
+#sudo vi /etc/systemd/system/tomcat.service
+
+
+#Populate the file with:
+#
+#[Unit]
+#Description=Apache Tomcat Web Application Container
+#After=syslog.target network.target
+#
+#[Service]
+#Type=forking
+#
+#Environment=JAVA_HOME=/usr/lib/jvm/jre
+#Environment=CATALINA_PID=/opt/tomcat/temp/tomcat.pid
+#Environment=CATALINA_HOME=/opt/tomcat
+#Environment=CATALINA_BASE=/opt/tomcat
+#Environment='CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC'
+#Environment='JAVA_OPTS=-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom'
+#
+#ExecStart=/opt/tomcat/bin/startup.sh
+#ExecStop=/bin/kill -15 $MAINPID
+#
+#User=tomcat
+#Group=tomcat
+#
+#[Install]
+#WantedBy=multi-user.target
+
+- name: create Systemd unit file for Apache tomcat
+  template:
+    src: ../files/tomcat.service
+    dest: /etc/systemd/system/tomcat.service
+
+# Step 8: Start and test Apache Tomcat
+
+- name: Start service httpd, if not running
+  service:
+    name: tomcat
+    state: started
+    enabled: yes
+
+- name: open management console port
+  become: true
+  become_method: sudo
+  firewalld: port=8080/tcp zone=public permanent=true state=enabled immediate=yes
+
