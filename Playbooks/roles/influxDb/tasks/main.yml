@@ -1,0 +1,75 @@
+---
+- name: Install dependencies
+  become: true
+  become_method: sudo
+  action: >
+    {{ ansible_pkg_mgr }} name={{ item }} state=present update_cache=yes
+  with_items:
+    - https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+    - httpd
+    - git
+    - gcc
+
+- name: Start service httpd, if not running
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: Install php dependencies (these require the httpd service to be running)
+  become: true
+  become_method: sudo
+  action: >
+    {{ ansible_pkg_mgr }} name={{ item }} state=present update_cache=yes
+  with_items:
+    - php72w
+    - php72w-opcache
+    - php72w-devel
+    - php72w-pear
+    - php72w-pdo
+    - php72w-mbstring
+
+- name: Copy Oracle instant clients to server
+  copy:
+    src: ../files/
+    dest: /tmp/
+
+- name: Install Oracle instantclient
+  become: true
+  become_method: sudo
+  action: >
+    {{ ansible_pkg_mgr }} name={{ item }} state=present update_cache=yes
+  with_items:
+    - /tmp/oracle-instantclient12.2-devel-12.2.0.1.0-1.x86_64.rpm
+    - /tmp/oracle-instantclient12.2-basic-12.2.0.1.0-1.x86_64.rpm
+    - /tmp/oracle-instantclient12.2-sqlplus-12.2.0.1.0-1.x86_64.rpm
+
+# install oci8
+- pear:
+    name: pecl/oci8
+    state: present
+
+- name: download composer
+  get_url:
+    url: https://getcomposer.org/installer
+    dest: /tmp/installer
+  tags: composer
+
+- name: install composer
+  shell: cat /tmp/installer | php -- --install-dir=/usr/local/bin
+  args:
+    creates: /usr/local/bin/composer
+  tags: composer
+
+- name: rename composer.phar to composer
+  shell: mv /usr/local/bin/composer.phar /usr/local/bin/composer
+  args:
+    creates: /usr/local/bin/composer
+  tags: composer
+
+- name: make composer executable
+  file:
+    path: /usr/local/bin/composer
+    mode: a+x
+    state: file
+  tags: composer
