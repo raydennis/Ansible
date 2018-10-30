@@ -1,0 +1,75 @@
+---
+- name: Install dependencies
+  become: true
+  become_method: sudo
+  apt: pkg={{ item }} state=present 
+  with_items:
+      # Python Dev
+      - python-dev
+      - python-setuptools
+      - python-virtualenv
+      - python-pip
+      - cmake
+
+      # Docker
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg2
+      - software-properties-common
+
+- name: Get upstream APT GPG key
+  apt_key:
+    id: "{{ docker_apt_key }}"
+    keyserver: "{{ ansible_local.core.keyserver
+                   if (ansible_local|d() and ansible_local.core|d() and
+                       ansible_local.core.keyserver)
+                   else 'hkp://pool.sks-keyservers.net' }}"
+    state: "present"
+
+- name: Configure upstream APT repository
+  apt_repository:
+    repo: "{{ docker_repository }}"
+    state: "present"
+    update_cache: True
+
+- name: Install Docker
+  apt:
+    name: "docker-{{ docker_edition }}"
+    # specific version example name: "docker-{{ docker_edition }}={{ docker_apt_package_name }}"
+    state: "present"
+    update_cache: True
+    install_recommends: False
+    cache_valid_time: "{{ docker_apt_cache_time }}"
+
+- name: Remove Upstart config file
+  file:
+    path: "/etc/default/docker"
+    state: "absent"
+
+- name: Ensure systemd directory exists
+  file:
+    path: "/etc/systemd/system"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+- name: Add specific users to "docker" group
+  user:
+    name: "{{ item }}"
+    groups: "docker"
+    append: True
+  with_items: "{{ docker_users }}"
+  when: docker_users
+
+- name: Install Docker Compose
+  get_url:
+    url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64"
+    dest: "/usr/local/bin/docker-compose"
+    force: True
+    owner: "root"
+    group: "root"
+    mode: "0755"
+  when: docker_install_docker_compose
+
