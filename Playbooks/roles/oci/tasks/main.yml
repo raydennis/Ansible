@@ -44,10 +44,12 @@
     - /tmp/oracle-instantclient12.2-basic-12.2.0.1.0-1.x86_64.rpm
     - /tmp/oracle-instantclient12.2-sqlplus-12.2.0.1.0-1.x86_64.rpm
 
-# install oci8
-- pear:
-    name: pecl/oci8
-    state: present
+# install oci8 (pear no longer works because you have to specify an Oracle_Home directory and the pear module cannot accept user input)
+# - pear:
+#     name: pecl/oci8
+#     state: present
+- name: install the PECL oci8 package
+  shell: yes '' | pecl install -s oci8
 
 - name: download composer
   get_url:
