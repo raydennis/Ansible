@@ -1,8 +1,8 @@
 ---
-- hosts: localweb
-  remote_user: raditsvc
+- hosts: all
+  remote_user: vagrant
   become: True
   become_method: sudo
   gather_facts: True
   roles:
-    - oci
+    - yumDocker
