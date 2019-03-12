@@ -5,4 +5,8 @@
   become_method: sudo
   gather_facts: True
   roles:
-    - yumDocker
+    - composer
+    # - ansible-role-php
+    - ansible-role-mysql
+    - httpd
+
