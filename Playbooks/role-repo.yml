@@ -5,8 +5,9 @@
   become_method: sudo
   gather_facts: True
   roles:
-    - composer
-    # - ansible-role-php
-    - ansible-role-mysql
-    - httpd
-
+    # - geerlingguy.jenkins
+    # - geerlingguy.apache
+    - geerlingguy.repo-remi
+    - geerlingguy.php
+    # - geerlingguy.mysql
+    # - geerlingguy.docker

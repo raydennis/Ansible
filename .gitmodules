@@ -1,0 +1,3 @@
+[submodule "Playbooks/roles/git"]
+	path = Playbooks/roles/git
+	url = https://github.com/geerlingguy/ansible-role-git
