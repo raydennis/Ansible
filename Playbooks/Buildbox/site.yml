@@ -1,0 +1,17 @@
+---
+- hosts: all
+  vars:
+    php_version: 7.1
+    # 7.3 has a JIT compile error: https://bugs.php.net/bug.php?id=77260
+    php_enablerepo: "remi,remi-php73"
+  remote_user: vagrant
+  become: True
+  become_method: sudo
+  gather_facts: True
+  roles:
+    - geerlingguy.jenkins
+    - geerlingguy.apache
+    - geerlingguy.mysql
+    - geerlingguy.docker
+    - geerlingguy.repo-remi
+    - geerlingguy.php

@@ -1,0 +1,14 @@
+# from galaxy
+- src: geerlingguy.apache
+- src: geerlingguy.docker
+- src: geerlingguy.java
+- src: geerlingguy.jenkins
+- src: geerlingguy.mysql
+- src: geerlingguy.php
+- src: geerlingguy.repo-epel
+- src: geerlingguy.repo-remi
+- src: geerlingguy.git
+
+# from GitHub 
+- name: opendaylight
+  src: https://github.com/raydennis/ansible-opendaylight
