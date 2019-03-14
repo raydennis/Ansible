@@ -10,5 +10,11 @@
 - src: geerlingguy.git
 
 # from GitHub 
-- name: opendaylight
-  src: https://github.com/raydennis/ansible-opendaylight
+- name: raydennis.composer
+  src: https://github.com/raydennis/ansible-role-composer
+
+- name: raydennis.git
+  src: https://github.com/raydennis/ansible-role-git
+
+- name: raydennis.laravel
+  src: https://github.com/raydennis/ansible-role-laravel
