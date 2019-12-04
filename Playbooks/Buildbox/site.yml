@@ -1,20 +1,22 @@
 ---
-- hosts: all
+- hosts: it153jenk.unm.edu 
   vars:
-    php_version: 7.1
+    php_version: 7.2
     # 7.3 has a JIT compile error: https://bugs.php.net/bug.php?id=77260
-    php_enablerepo: "remi,remi-php71"
-  remote_user: vagrant
+    php_enablerepo: "remi,remi-php72"
+    git_version: "2.16.2"
+  remote_user: raditsvc
   become: True
   become_method: sudo
   gather_facts: True
   roles:
-    - geerlingguy.jenkins
-    - geerlingguy.mysql
-    - geerlingguy.docker
-    - geerlingguy.apache
-    - geerlingguy.repo-remi
-    - geerlingguy.php
-    - raydennis.composer
-    - raydennis.git
-    - raydennis.laravel
+     # - geerlingguy.docker
+     # - geerlingguy.jenkins
+     # - geerlingguy.mysql
+     # - geerlingguy.apache
+     # - geerlingguy.repo-remi
+     - geerlingguy.git
+     # - geerlingguy.php
+     # - raydennis.composer
+     # - raydennis.git
+     # - raydennis.laravel

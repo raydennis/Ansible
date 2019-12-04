@@ -1,13 +1,14 @@
 ---
-- hosts: all
-  remote_user: vagrant
+- hosts: it153tes01lnx.unm.edu
+  remote_user: rdennis
   become: True
   become_method: sudo
   gather_facts: True
   roles:
     # - geerlingguy.jenkins
     # - geerlingguy.apache
-    - geerlingguy.repo-remi
-    - geerlingguy.php
+    # - geerlingguy.repo-remi
+    # - geerlingguy.php
     # - geerlingguy.mysql
-    # - geerlingguy.docker
+    - geerlingguy.docker
+    # - raydennis.git
